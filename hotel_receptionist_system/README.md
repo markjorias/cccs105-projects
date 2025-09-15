@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  <img src="hotel_receptionist_system\documentation\screenshots\login.png" alt="Login" width="250" style="margin-right:10px;"/>
-  <img src="hotel_receptionist_system\documentation\screenshots\home.png" alt="Home" width="250"/>
+  <img src="documentation/screenshots/login.png" alt="Login" width="320" style="margin-right:20px;"/>
+  <img src="documentation/screenshots/home.png" alt="Home" width="320"/>
 </p>
 
 # Hotel Receptionist System
