@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Guest Management{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>👥 Guest Management</h1>
+    <p>View and manage guest information</p>
+</div>
+
+<div class="content-section">
+    <h2>Guest List</h2>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" class="form-input search-input" placeholder="Search guests...">
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Guest ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>ID Document</th>
+                <th>Active Bookings</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guest in guests %}
+            <tr>
+                <td>{{ guest.guest_id }}</td>
+                <td>{{ guest.name }}</td>
+                <td>{{ guest.email }}</td>
+                <td>{{ guest.phone }}</td>
+                <td>{{ guest.id_document }}</td>
+                <td>
+                    {% set active_bookings = guest.bookings|selectattr('status', 'in', ['Confirmed', 'Checked In'])|list %}
+                    {% if active_bookings %}
+                        {% for booking in active_bookings %}
+                            <div class="booking-info">
+                                Room {{ booking.room.room_id }}<br>
+                                {{ booking.check_in.strftime('%Y-%m-%d') }} to {{ booking.check_out.strftime('%Y-%m-%d') }}<br>
+                                <span class="status-badge {{ booking.status.lower() }}">{{ booking.status }}</span>
+                            </div>
+                            {% if not loop.last %}<hr class="booking-divider">{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        No active bookings
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('main.edit_guest', guest_id=guest.guest_id) }}" class="btn small">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not guests %}
+            <tr>
+                <td colspan="7" class="text-center">No guests found.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .booking-info {
+        margin: 5px 0;
+    }
+    
+    .booking-divider {
+        margin: 8px 0;
+        border: 0;
+        border-top: 1px solid #eee;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+    
+    .status-badge.confirmed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-badge.checked-in {
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.data-table tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchValue) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

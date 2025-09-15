@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Check In{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🔑 Check In</h1>
+    <p>Process guest check-ins</p>
+</div>
+
+<div class="content-section">
+    <h2>Today's Pending Check-ins</h2>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" class="form-input search-input" placeholder="Search bookings...">
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Guest Name</th>
+                <th>Room</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in todays_checkins %}
+            <tr>
+                <td>{{ booking.booking_id }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if booking.payments %}
+                        <span class="status-badge confirmed">Paid</span>
+                    {% else %}
+                        <span class="status-badge cancelled">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('main.checkin_booking', booking_id=booking.booking_id) }}">
+                        <button type="submit" class="btn small primary-btn">CHECK IN</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not todays_checkins %}
+            <tr>
+                <td colspan="7" class="text-center">No check-ins scheduled for today.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>Upcoming Check-ins</h2>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Guest Name</th>
+                <th>Room</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Payment Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in upcoming_checkins %}
+            <tr>
+                <td>{{ booking.booking_id }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if booking.payments %}
+                        <span class="status-badge confirmed">Paid</span>
+                    {% else %}
+                        <span class="status-badge cancelled">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not upcoming_checkins %}
+            <tr>
+                <td colspan="6" class="text-center">No upcoming check-ins.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>Check-in History</h2>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Guest Name</th>
+                <th>Room</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in checkin_history %}
+            <tr>
+                <td>{{ booking.booking_id }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <span class="status-badge {{ booking.status.lower().replace(' ', '-') }}">
+                        {{ booking.status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not checkin_history %}
+            <tr>
+                <td colspan="6" class="text-center">No check-in history.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Hotel Receptionist System - Login</title>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <span class="hotel-icon">🏨</span>
+        <h1 class="welcome-title">Welcome Back!</h1>
+        <p class="welcome-subtitle">Your dashboard for smooth check-ins and excellent service.</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST">
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="user_type" value="admin" checked> Admin
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="user_type" value="receptionist"> Receptionist
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

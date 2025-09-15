@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Edit Guest{% endblock %}
+
+{% block content %}
+<!--This can be accessed by the receptionist and the admin-->
+<!--This page allows the receptionist to edit the guest's information, such as their name, email, phone number, and address-->
+<!--The receptionist can also change the booking details of the guest, such as the room number, check-in date, and check-out date and payment details-->
+
+<div class="header">
+    <h1>✏️ Edit Guest Information</h1>
+    <p>Update guest details and booking information</p>
+</div>
+
+<div class="content-section">
+    <h2>Guest Information</h2>
+    <form class="form-container" method="POST" action="{{ url_for('main.update_guest', guest_id=guest.guest_id) }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" class="form-input" value="{{ guest.name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" value="{{ guest.email }}" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-input" value="{{ guest.phone }}" required>
+            </div>
+            <div class="form-group">
+                <label for="id_document">ID Document</label>
+                <input type="text" id="id_document" name="id_document" class="form-input" value="{{ guest.id_document }}" required>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary-btn">Update Guest Information</button>
+            <a href="{{ url_for('main.guests') }}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% if active_bookings %}
+<div class="content-section">
+    <h2>Active Bookings</h2>
+    {% for booking in active_bookings %}
+    <div class="booking-section">
+        <h3>Booking #{{ booking.booking_id }} - {{ booking.status }}</h3>
+        {% if booking.status == 'Confirmed' %}
+        <form class="form-container" method="POST" action="{{ url_for('main.update_booking', booking_id=booking.booking_id) }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="check_in_{{ booking.booking_id }}">Check-in Date</label>
+                    <input type="date" id="check_in_{{ booking.booking_id }}" name="check_in" class="form-input" 
+                           value="{{ booking.check_in.strftime('%Y-%m-%d') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="check_out_{{ booking.booking_id }}">Check-out Date</label>
+                    <input type="date" id="check_out_{{ booking.booking_id }}" name="check_out" class="form-input" 
+                           value="{{ booking.check_out.strftime('%Y-%m-%d') }}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="room_id_{{ booking.booking_id }}">Room</label>
+                    <select id="room_id_{{ booking.booking_id }}" name="room_id" class="form-input" required>
+                        <option value="{{ booking.room.room_id }}" selected>
+                            Current: Room {{ booking.room.room_id }} - {{ booking.room.room_type }}
+                        </option>
+                    </select>
+                    <small class="form-help" id="room-help-{{ booking.booking_id }}">Change dates to see available rooms.</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="payment_method_{{ booking.booking_id }}">Payment Method</label>
+                    <select id="payment_method_{{ booking.booking_id }}" name="payment_method" class="form-input" required>
+                        <option value="cash" {% if booking.payments[0].method == 'cash' %}selected{% endif %}>Cash</option>
+                        <option value="credit_card" {% if booking.payments[0].method == 'credit_card' %}selected{% endif %}>Credit Card</option>
+                        <option value="debit_card" {% if booking.payments[0].method == 'debit_card' %}selected{% endif %}>Debit Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount_{{ booking.booking_id }}">Payment Amount</label>
+                    <input type="number" id="amount_{{ booking.booking_id }}" name="amount" step="0.01" class="form-input" 
+                           value="{{ booking.payments[0].amount }}" required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn primary-btn">Update Booking</button>
+            </div>
+        </form>
+        {% else %}
+        <div class="booking-details readonly">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Check-in Date</label>
+                    <div class="readonly-value">{{ booking.check_in.strftime('%Y-%m-%d') }}</div>
+                </div>
+                <div class="form-group">
+                    <label>Check-out Date</label>
+                    <div class="readonly-value">{{ booking.check_out.strftime('%Y-%m-%d') }}</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Room</label>
+                    <div class="readonly-value">Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <div class="readonly-value">{{ booking.payments[0].method|title }}</div>
+                </div>
+                <div class="form-group">
+                    <label>Payment Amount</label>
+                    <div class="readonly-value">{{ booking.payments[0].amount }}</div>
+                </div>
+            </div>
+
+            <div class="info-message">
+                <i class="fas fa-info-circle"></i>
+                This booking cannot be edited because it is already checked in.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="content-section">
+    <p class="text-center">No active bookings found for this guest.</p>
+</div>
+{% endif %}
+
+<script>
+    // Disable past dates for check-in and check-out
+    const today = new Date().toISOString().split('T')[0];
+    
+    {% for booking in active_bookings %}
+    {% if booking.status == 'Confirmed' %}
+    const checkIn{{ booking.booking_id }} = document.getElementById('check_in_{{ booking.booking_id }}');
+    const checkOut{{ booking.booking_id }} = document.getElementById('check_out_{{ booking.booking_id }}');
+    const roomSelect{{ booking.booking_id }} = document.getElementById('room_id_{{ booking.booking_id }}');
+    const roomHelp{{ booking.booking_id }} = document.getElementById('room-help-{{ booking.booking_id }}');
+    const currentRoomId{{ booking.booking_id }} = {{ booking.room.room_id }};
+    
+    checkIn{{ booking.booking_id }}.setAttribute('min', today);
+    checkOut{{ booking.booking_id }}.setAttribute('min', today);
+    
+    // Function to check room availability for this booking
+    async function checkAvailability{{ booking.booking_id }}() {
+        const checkIn = checkIn{{ booking.booking_id }}.value;
+        const checkOut = checkOut{{ booking.booking_id }}.value;
+        
+        if (!checkIn || !checkOut) {
+            roomSelect{{ booking.booking_id }}.disabled = true;
+            roomSelect{{ booking.booking_id }}.innerHTML = '<option value="">Select dates first...</option>';
+            roomHelp{{ booking.booking_id }}.textContent = 'Please select check-in and check-out dates to see available rooms.';
+            return;
+        }
+        
+        // Validate dates
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        
+        if (checkOutDate <= checkInDate) {
+            roomSelect{{ booking.booking_id }}.disabled = true;
+            roomSelect{{ booking.booking_id }}.innerHTML = '<option value="">Invalid dates</option>';
+            roomHelp{{ booking.booking_id }}.textContent = 'Check-out date must be after check-in date.';
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('check_in', checkIn);
+            formData.append('check_out', checkOut);
+            formData.append('current_booking_id', '{{ booking.booking_id }}');
+            
+            const response = await fetch('{{ url_for("main.check_room_availability") }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                roomSelect{{ booking.booking_id }}.innerHTML = '';
+                
+                if (data.available_rooms.length === 0) {
+                    roomSelect{{ booking.booking_id }}.disabled = true;
+                    roomHelp{{ booking.booking_id }}.textContent = 'No rooms available for selected dates.';
+                } else {
+                    roomSelect{{ booking.booking_id }}.disabled = false;
+                    roomHelp{{ booking.booking_id }}.textContent = `${data.available_rooms.length} room(s) available for selected dates.`;
+                    
+                    // Add available rooms to select
+                    data.available_rooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.room_id;
+                        option.textContent = `Room ${room.room_id} - ${room.room_type} (${room.price}/night)`;
+                        if (room.room_id === currentRoomId{{ booking.booking_id }}) {
+                            option.selected = true;
+                            option.textContent = `Current: ${option.textContent}`;
+                        }
+                        roomSelect{{ booking.booking_id }}.appendChild(option);
+                    });
+                }
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            roomSelect{{ booking.booking_id }}.disabled = true;
+            roomSelect{{ booking.booking_id }}.innerHTML = '<option value="">Error checking availability</option>';
+            roomHelp{{ booking.booking_id }}.textContent = 'Error: ' + error.message;
+        }
+    }
+    
+    // Add event listeners for date changes
+    checkIn{{ booking.booking_id }}.addEventListener('change', function() {
+        checkOut{{ booking.booking_id }}.setAttribute('min', this.value);
+        checkAvailability{{ booking.booking_id }}();
+    });
+    
+    checkOut{{ booking.booking_id }}.addEventListener('change', checkAvailability{{ booking.booking_id }});
+    {% endif %}
+    {% endfor %}
+</script>
+
+<style>
+    .booking-details.readonly {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .readonly-value {
+        padding: 8px 12px;
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        color: #495057;
+    }
+    
+    .info-message {
+        margin-top: 15px;
+        padding: 10px 15px;
+        background-color: #cce5ff;
+        border: 1px solid #b8daff;
+        border-radius: 4px;
+        color: #004085;
+    }
+    
+    .info-message i {
+        margin-right: 8px;
+    }
+</style>
+{% endblock %} 

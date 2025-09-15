@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Manage Rooms{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🛏️ Manage Rooms</h1>
+    <p>Add and manage hotel rooms</p>
+</div>
+
+<div class="content-section">
+    <h2>Add New Room</h2>
+    
+    <form class="form-container horizontal-form" method="POST" action="{{ url_for('admin.add_room') }}">
+        <div class="form-group">
+            <label for="room_type">Room Type</label>
+            <input type="text" id="room_type" name="room_type" class="form-input" required placeholder="e.g. Standard, Deluxe, Suite">
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Price (per night)</label>
+            <input type="number" id="price" name="price" min="0" class="form-input" required placeholder="0">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn primary-btn">Add Room</button>
+        </div>
+    </form>
+</div>
+
+<div class="content-section">
+    <h2>Room Inventory</h2>
+    
+    <div class="filter-controls">
+        <button class="btn filter-btn active" data-filter="all">All Rooms</button>
+        <button class="btn filter-btn" data-filter="vacant">Vacant Rooms</button>
+        <button class="btn filter-btn" data-filter="occupied">Occupied Rooms</button>
+        <button class="btn filter-btn" data-filter="reserved">Reserved Rooms</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Room ID</th>
+                <th>Room Type</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+            <tr class="room-row {{ room.status.lower() }}" data-room-id="{{ room.room_id }}">
+                <td>{{ room.room_id }}</td>
+                <td class="room-type-cell">
+                    <span class="display-value">{{ room.room_type }}</span>
+                    <input type="text" class="edit-input form-input" value="{{ room.room_type }}" style="display: none;">
+                </td>
+                <td class="price-cell">
+                    <span class="display-value">{{ room.price }}</span>
+                    <input type="number" min="0" step="0.01" class="edit-input form-input" value="{{ room.price }}" style="display: none;">
+                </td>
+                <td>
+                    <span class="status-badge {{ room.status.lower() }}">
+                        {{ room.status }}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn small edit-btn">Edit</button>
+                        <button class="btn small primary-btn save-btn" style="display: none;">Save</button>
+                        <button class="btn small cancel-btn" style="display: none;">Cancel</button>
+                        {% if room.bookings|length == 0 %}
+                            <form method="POST" action="{{ url_for('admin.delete_room', room_id=room.room_id) }}" 
+                                  style="margin: 0;"
+                                  onsubmit="return confirm('Are you sure you want to delete this room? This action cannot be undone.');">
+                                <button type="submit" class="btn small danger">Delete</button>
+                            </form>
+                        {% else %}
+                            <span class="btn small disabled" title="Room has booking history">Has Booking History</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not rooms %}
+            <tr>
+                <td colspan="5" class="text-center">No rooms found.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

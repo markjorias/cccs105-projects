@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🏨 Hotel Receptionist System</h1>
+    <p>Welcome to your centralized hotel management dashboard</p>
+</div>
+
+<div class="stats-section">
+    <h2>Today's Overview</h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.rooms_occupied }}</span>
+            <div class="stat-label">Rooms Occupied</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.checkins_today }}</span>
+            <div class="stat-label">Check-ins Today</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.checkouts_today }}</span>
+            <div class="stat-label">Check-outs Today</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.pending_arrivals }}</span>
+            <div class="stat-label">Pending Arrivals</div>
+        </div>
+    </div>
+</div>
+
+<div class="nav-grid">
+    <div class="nav-card">
+        <a href="{{ url_for('main.bookings') }}">
+            <span class="nav-icon bookings">📅</span>
+            <h3>Bookings</h3>
+            <p>View and create bookings. Handle modifications.</p>
+            <button class="btn">View Bookings</button>
+        </a>
+    </div>
+
+    <div class="nav-card">
+        <a href="{{ url_for('main.checkin') }}">
+            <span class="nav-icon checkin">🔑</span>
+            <h3>Check In</h3>
+            <p>Process guest arrivals and complete check-in procedures.</p>
+            <button class="btn">Start Check In</button>
+        </a>
+    </div>
+
+    <div class="nav-card">
+        <a href="{{ url_for('main.checkout') }}">
+            <span class="nav-icon checkout">🚪</span>
+            <h3>Check Out</h3>
+            <p>View today, upcoming and past guest checkouts! Finalize stays.</p>
+            <button class="btn">Start Check Out</button>
+        </a>
+    </div>
+
+    <div class="nav-card">
+        <a href="{{ url_for('main.guests') }}">
+            <span class="nav-icon guests">👥</span>
+            <h3>Guest Management</h3>
+            <p>View, search, and manage guest information and booking details.</p>
+            <button class="btn">Manage Guests</button>
+        </a>
+    </div>
+</div>
+{% endblock %}

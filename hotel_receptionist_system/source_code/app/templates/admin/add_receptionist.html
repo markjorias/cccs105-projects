@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Add Receptionist{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>👤 Add Receptionist</h1>
+    <p>Manage hotel staff accounts</p>
+</div>
+
+<div class="content-section">
+    <h2>New Receptionist</h2>
+    
+    <form class="form-container" method="POST" action="{{ url_for('admin.add_receptionist') }}">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-input" required>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn primary-btn">Add Receptionist</button>
+            <button type="reset" class="btn">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class="content-section">
+    <h2>Existing Receptionists</h2>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for receptionist in receptionists %}
+            <tr>
+                <td>{{ receptionist.receptionist_id }}</td>
+                <td>{{ receptionist.name }}</td>
+                <td>{{ receptionist.username }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_receptionist', receptionist_id=receptionist.receptionist_id) }}" onsubmit="return confirm('Are you sure you want to delete this receptionist?');">
+                        <button type="submit" class="btn small danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not receptionists %}
+            <tr>
+                <td colspan="4" class="text-center">No receptionists found.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

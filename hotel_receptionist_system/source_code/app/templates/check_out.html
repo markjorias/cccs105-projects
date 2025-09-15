@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Hotel Receptionist System - Check Out{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🔚 Check Out</h1>
+    <p>Process guest check-outs</p>
+</div>
+
+<div class="content-section">
+    <h2>Today's Expected Check-outs</h2>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" class="form-input search-input" placeholder="Search guests...">
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Guest Name</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Total Stay</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in todays_checkouts %}
+            <tr class="booking-row">
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% set days = (booking.check_out - booking.check_in).days %}
+                    {{ days }} night{% if days != 1 %}s{% endif %}
+                </td>
+                <td>
+                    {% if booking.payments %}
+                        <span class="status-badge confirmed">Paid</span><br>
+                        <small>{{ "%.2f"|format(booking.payments[0].amount) }}</small>
+                    {% else %}
+                        <span class="status-badge cancelled">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('main.checkout_booking', booking_id=booking.booking_id) }}"
+                          onsubmit="return confirm('Are you sure you want to check out this guest?');">
+                        <button type="submit" class="btn small primary-btn">Check Out</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not todays_checkouts %}
+            <tr>
+                <td colspan="7" class="text-center">No check-outs scheduled for today.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>Upcoming Check-outs</h2>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Guest Name</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Total Stay</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in upcoming_checkouts %}
+            <tr class="booking-row">
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% set days = (booking.check_out - booking.check_in).days %}
+                    {{ days }} night{% if days != 1 %}s{% endif %}
+                </td>
+                <td>
+                    {% if booking.payments %}
+                        <span class="status-badge confirmed">Paid</span><br>
+                        <small>{{ "%.2f"|format(booking.payments[0].amount) }}</small>
+                    {% else %}
+                        <span class="status-badge cancelled">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('main.early_checkout_booking', booking_id=booking.booking_id) }}"
+                          onsubmit="return confirm('Are you sure you want to check out this guest today? This will update their check-out date to today.');">
+                        <button type="submit" class="btn small warning">CHECKOUT</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not upcoming_checkouts %}
+            <tr>
+                <td colspan="7" class="text-center">No upcoming check-outs.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>Check-out History</h2>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Guest Name</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Total Stay</th>
+                <th>Payment Status</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in checkout_history %}
+            <tr class="booking-row checked-out">
+                <td>Room {{ booking.room.room_id }} - {{ booking.room.room_type }}</td>
+                <td>
+                    {{ booking.guest.name }}<br>
+                    <small>{{ booking.guest.phone }}</small>
+                </td>
+                <td>{{ booking.check_in.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.check_out.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% set days = (booking.check_out - booking.check_in).days %}
+                    {{ days }} night{% if days != 1 %}s{% endif %}
+                </td>
+                <td>
+                    {% if booking.payments %}
+                        <span class="status-badge confirmed">Paid</span><br>
+                        <small>{{ "%.2f"|format(booking.payments[0].amount) }}</small>
+                    {% else %}
+                        <span class="status-badge cancelled">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="status-badge checked-out">
+                        {{ booking.status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not checkout_history %}
+            <tr>
+                <td colspan="7" class="text-center">No check-out history.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+{% endblock %}
